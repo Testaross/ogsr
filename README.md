@@ -8,3 +8,6 @@ Basically drag and drop, job check depends solely on the target in the client.lu
 Join my discord for announcements and my other scripts, conversions, and snippets
 
 https://discord.gg/bJSW7k4aAP
+
+
+ALL CREDIT TO https://github.com/EGUltraTM/Radiant_gsrtest
