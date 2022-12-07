@@ -31,17 +31,15 @@ end)
 
 function gsrcheck(source, identifier)
     local src = source
-    local identifier = identifier
     if gsrData[identifier] ~= nil then
         TriggerClientEvent('ox_lib:notify', src, {type = 'success', description = 'Test comes back POSITIVE (Has Shot)'})
     else
-        TriggerClientEvent('ox_lib:notify', src, {type = 'success', description = 'Test comes back NEGATIVE (Has Not Shot)'})
+        TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = 'Test comes back NEGATIVE (Has Not Shot)'})
     end
 end
 
 lib.callback.register('Update', function(source)
     local src = source
-    print(src)
     local identifier = GetPlayerIdentifiers(src)[1]
     if gsrData[identifier] ~= nil then
         return true
@@ -62,5 +60,4 @@ function gsrTimer()
     removeGSR()
     SetTimeout(Config.gsrAutoRemove, gsrTimer)
 end
-
 gsrTimer()
