@@ -10,4 +10,4 @@ Join my discord for announcements and my other scripts, conversions, and snippet
 https://discord.gg/bJSW7k4aAP
 
 
-ALL CREDIT TO https://github.com/EGUltraTM/Radiant_gsrtest
+
