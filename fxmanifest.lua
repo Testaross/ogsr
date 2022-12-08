@@ -12,6 +12,7 @@ server_scripts {
 
 client_scripts {
 	'config.lua',
+	'bridge_cl.lua',
 	"client.lua"
 }
 
