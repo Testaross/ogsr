@@ -12,16 +12,12 @@ end
 local function boomerremover()
 	while true do
 		local sleep = 1
-        local armed = IsPedArmed(ped, 4)
         if KillThread == true then
             break
         end
-        if not armed then
-            sleep = 250
-        end
         if IsPedShooting(ped) then
                 print('here')
-                lastShot = GetGameTimer
+                lastShot = GetGameTimer()
                 shot = true
                 LocalPlayer.state:set('shot', true, true)
                 sleep = 1000
@@ -29,6 +25,7 @@ local function boomerremover()
         Wait(sleep)
 	end
 end
+
 
 lib.onCache('weapon', function(value)
     if value then
