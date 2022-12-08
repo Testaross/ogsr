@@ -1,81 +1,82 @@
-local hasShot = false
-local playerPed = cache.ped
 
+local ped = cache.ped
+local shot = false
+local lastShot = 0
+local timeInWater = 0
+local beenInWater = false
 
-local function boomboompow()
-    while true do
-        if murderTime == true then
-			break
-		end
-        Wait(0)
-        if IsPedShooting(playerPed) then
-            TriggerServerEvent('beginGSR', timer)
-            hasShot = true
-            Wait(Config.gsrUpdate)
-        end
-    end
+if LocalPlayer.state.shot then
+    shot = true 
 end
 
-CreateThread(function()
-    while true do
-        Wait(2000)
-        if Config.waterClean and hasShot then
-            if murderTime == true then
-                break
-            end
-            if IsEntityInWater(playerPed) then
-                lib.notify({
-                    title = '!?1?!?!?',
-                    description = 'You begin cleaning off the Gunshot Residue... stay in the water.',
-                    type = 'inform'
-                })
-				Wait(100)
-                if lib.progressBar({
-                    duration = Config.waterCleanTime,
-                    label = 'Washing Off GSR',
-                    useWhileDead = false,
-                    canCancel = true,
-                    disable = {
-                        car = true,
-                    },
-                }) then 
-                    if IsEntityInWater(playerPed) then
-                        hasShot = false
-                        TriggerServerEvent('removeGSR')
-                        lib.notify({
-                            title = '!?1?!?!?',
-                            description = 'You washed off all the Gunshot Residue in the water.',
-                            type = 'inform'
-                        })
-                    else
-                        lib.notify({
-                            title = '!?1?!?!?',
-                            description = 'You left the water too early and did not wash off the gunshot residue.',
-                            type = 'error'
-                        })
-                    end
-                end
-				Wait(Config.waterCleanTime)
-            end
+local function boomerremover()
+	while true do
+		local sleep = 1
+        local armed = IsPedArmed(ped, 4)
+        if KillThread == true then
+            break
         end
+        if not armed then
+            sleep = 250
+        end
+        if IsPedShooting(ped) then
+                print('here')
+                lastShot = GetGameTimer
+                shot = true
+                LocalPlayer.state:set('shot', true, true)
+                sleep = 1000
+        end
+        Wait(sleep)
+	end
+end
+
+lib.onCache('weapon', function(value)
+    if value then
+        KillThread = false
+        CreateThread(boomerremover)
+    else
+        KillThread = true
     end
 end)
 
-function status()
-    if hasShot then
-        lib.callback('Update', false, function(cb)
-            if not cb then
-                hasShot = false
+CreateThread(function(boomerremover)
+	while true do
+        Wait(100)
+        if shot == true then
+            if IsEntityInWater(ped) then
+                if inWater == false then
+                    timeInWater = GetGameTimer()
+                end
+                beenInWater = true
+                inWater = true
+            else
+                inWater = false
+                beenInWater = false
+                timeInWater = 0
             end
-        end) 
+        end
+        local timer = GetGameTimer()
+        if shot and beenInWater and timer - timeInWater >= (Config.clearGSRinWater * 60 * 1000) then
+            ClearPedBloodDamage(ped)
+            ClearPedEnvDirt(ped)
+            ResetPedVisibleDamage(ped)
+            lib.notify({
+                description = 'GSR Washed off',
+                type = 'error'
+            })
+            LocalPlayer.state:set('shot', false, true)
+            shot = false
+        end
+        if shot and timer - lastShot >= (Config.clearGSR * 60 * 1000) then
+            lib.notify({
+                description = 'GSR Washed off',
+                type = 'error'
+            })
+            LocalPlayer.state:set('shot', false, true)
+            shot = false
+        end 
     end
-end
-
-function updateStatus()
-    status()
-    SetTimeout(Config.gsrUpdateStatus, updateStatus)
-end
-updateStatus()
+end)
 
 exports.ox_target:addGlobalPlayer({
     {
@@ -86,16 +87,8 @@ exports.ox_target:addGlobalPlayer({
             return distance < 1.5 
         end,
         onSelect = function(data)
-            TriggerServerEvent('beginTest', GetPlayerServerId(NetworkGetPlayerIndexFromPed(data.entity)))
+            TriggerServerEvent('gsrTest', GetPlayerServerId(NetworkGetPlayerIndexFromPed(data.entity)))
         end
     }
 })
 
-AddEventHandler('ox_inventory:currentWeapon', function(data)
-    if data then
-        murderTime = false
-        CreateThread(boomboompow)
-    else
-		murderTime = true
-    end
-end)
