@@ -2,17 +2,14 @@ RegisterNetEvent('gsrTest', function(target)
 	local src = source
 	local ply = Player(target)
 	if ply.state.shot == true then
-        TriggerClientEvent('ox_lib:notify', src, {type = 'success', description = 'Test comes back POSITIVE (Has Shot)'})
+        	TriggerClientEvent('ogsr:notify', src, {type = 'success', description = 'Test comes back POSITIVE (Has Shot)'})
 	else
-        TriggerClientEvent('ox_lib:notify', src, {type = 'error', description = 'Test comes back NEGATIVE (Has Not Shot)'})
+        	TriggerClientEvent('ogsr:notify', src, {type = 'error', description = 'Test comes back NEGATIVE (Has Not Shot)'})
 	end
 end)
 
-RegisterNetEvent('ox_inventory:updateWeapon', function(action)
-    if action ~= 'ammo' then return end
-    local lastShot = GetGameTimer()
-    Player(source).state:set('shot', true, true)
-    Player(source).state:set('lastShot', lastShot, true)
+AddEventHandler("startProjectileEvent", function(sender, data) 
+	local lastShot = GetGameTimer()
+    	Player(sender).state:set('shot', true, true)
+	Player(sender).state:set('lastShot', lastShot, true)
 end)
-
-
