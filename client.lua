@@ -1,3 +1,5 @@
+
+local ped = cache.ped
 local shot = false
 local lastShot = 0
 local timeInWater = 0
@@ -13,7 +15,6 @@ end
 CreateThread(function()
 	while true do
         Wait(100)
-	local ped = (Config.oxLib and cache.ped or PlayerPedId())
         local shot = LocalPlayer.state.shot
         if shot == true then
             if IsEntityInWater(ped) then
@@ -34,7 +35,7 @@ CreateThread(function()
             ClearPedBloodDamage(ped)
             ClearPedEnvDirt(ped)
             ResetPedVisibleDamage(ped)
-            ShowNotification({
+            lib.notify({
                 description = 'GSR Washed off',
                 type = 'error'
             })
@@ -42,7 +43,7 @@ CreateThread(function()
             shot = false
         end
         if shot and timer - lastShot >= (Config.clearGSR * 60 * 1000) then
-            ShowNotification({
+            lib.notify({
                 description = 'GSR has faded',
                 type = 'error'
             })
@@ -52,34 +53,18 @@ CreateThread(function()
     end
 end)
 
-
-function GetClosestPlayer(coords, max_dist)
-    local closest_id, closest_dist
-    for k, player in ipairs(GetActivePlayers()) do
-        local ped = GetPlayerPed(player)
-	local dist = #(coords - GetEntityCoords(ped))
-        if DoesEntityExist(ped) and dist <= max_dist and (not closest_dist or closest_dist > dist) then
-            closest_id, closest_dist = ped, dist
+exports.ox_target:addGlobalPlayer({
+    {
+        icon = '',
+        label = 'GSR Test',
+        groups = 'police',
+	    distance = 1.5,
+        onSelect = function(data)
+            TriggerServerEvent('gsrTest', GetPlayerServerId(NetworkGetPlayerIndexFromPed(data.entity)))
         end
-    end
-    return closest_id, closest_dist
-end
+    }
+})
 
-function GSRTest(ped)
-	local ped = (ped and ped or GetClosestPlayer())
-	if ped then 
-		if PermissionCheck("gsr") then 
-			TriggerServerEvent('gsrTest', GetPlayerServerId(NetworkGetPlayerIndexFromPed(ped)))
-		else
-			ShowNotification("There is nobody around to test.")
-		end
-	else
-		ShowNotification("There is nobody around to test.")
-	end
-end
-
-RegisterNetEvent("ogsr:notify", function(data) 
-	ShowNotification("There is nobody around to test.")
-end)
-
-AddTarget()
+AddEventHandler('gameEventTriggered', function (name, args)
+    print('game event ' .. name .. ' (' .. json.encode(args) .. ')')
+  end)
