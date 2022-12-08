@@ -78,4 +78,8 @@ function GSRTest(ped)
 	end
 end
 
+RegisterNetEvent("ogsr:notify", function(data) 
+	ShowNotification("There is nobody around to test.")
+end)
+
 AddTarget()
