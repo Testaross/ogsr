@@ -13,7 +13,7 @@ end
 CreateThread(function()
 	while true do
         Wait(100)
-		local ped = PlayerPedId()	
+	local ped = (Config.oxLib and cache.ped or PlayerPedId())
         local shot = LocalPlayer.state.shot
         if shot == true then
             if IsEntityInWater(ped) then
@@ -57,7 +57,7 @@ function GetClosestPlayer(coords, max_dist)
     local closest_id, closest_dist
     for k, player in ipairs(GetActivePlayers()) do
         local ped = GetPlayerPed(player)
-		local dist = #(coords - GetEntityCoords(ped))
+	local dist = #(coords - GetEntityCoords(ped))
         if DoesEntityExist(ped) and dist <= max_dist and (not closest_dist or closest_dist > dist) then
             closest_id, closest_dist = ped, dist
         end
