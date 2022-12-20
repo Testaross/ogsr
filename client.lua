@@ -65,6 +65,3 @@ exports.ox_target:addGlobalPlayer({
     }
 })
 
-AddEventHandler('gameEventTriggered', function (name, args)
-    print('game event ' .. name .. ' (' .. json.encode(args) .. ')')
-  end)
